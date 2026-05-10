@@ -4,9 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Arena;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreArenaRequest;
+use App\Services\ArenaService;
+use Illuminate\Http\RedirectResponse;
 
 class ArenaController extends Controller
 {
+
+    public function __construct(
+        protected ArenaService $arenaService
+    ) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -26,9 +34,16 @@ class ArenaController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreArenaRequest $request): RedirectResponse
     {
-        //
+        abort_if(!auth()->user()->hasRole('owner'), 403);
+
+        $this->arenaService->create(
+            $request->validated(),
+            auth()->id()
+        );
+
+        return redirect()->back();
     }
 
     /**
